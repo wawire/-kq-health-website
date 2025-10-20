@@ -1,0 +1,190 @@
+@import 'tailwindcss';
+
+/* ===== KENYA AIRWAYS DESIGN SYSTEM ===== */
+:root {
+  /* Kenya Airways Brand Colors - The Pride of Africa */
+  --color-primary: #e30613; /* KQ Red - Signature Brand Color */
+  --color-primary-dark: #b8050f; /* KQ Red Dark */
+  --color-primary-light: #f44452; /* KQ Red Light */
+
+  --color-secondary: #2c5aa0; /* KQ Blue - Trust & Reliability */
+  --color-secondary-dark: #1e3a6f; /* KQ Blue Dark */
+  --color-secondary-light: #4a7bc8; /* KQ Blue Light */
+
+  --color-accent: #f39c12; /* KQ Orange/Gold - Premium Service */
+  --color-accent-dark: #d68910; /* KQ Orange Dark */
+  --color-accent-light: #f7b733; /* KQ Orange Light */
+
+  /* Supporting Colors - Professional & Medical */
+  --color-success: #00a86b; /* Medical Green - Health & Wellness */
+  --color-warning: #ff8c00; /* Medical Orange - Attention */
+  --color-error: #dc2626; /* Error Red */
+  --color-info: var(--color-secondary); /* Use KQ Blue for info */
+
+  /* Kenya Airways Neutral Palette */
+  --color-white: #ffffff;
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+  --color-black: #000000;
+
+  /* Backgrounds - Clean & Professional */
+  --color-background: var(--color-white);
+  --color-background-muted: var(--color-gray-50);
+  --color-background-soft: var(--color-gray-100);
+
+  /* Text Colors - High Contrast */
+  --color-foreground: var(--color-gray-900);
+  --color-foreground-muted: var(--color-gray-600);
+  --color-foreground-light: var(--color-gray-500);
+
+  /* Spacing - Professional Layout */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+
+  /* Border Radius - Modern & Clean */
+  --radius-sm: 0.125rem; /* 2px */
+  --radius-base: 0.375rem; /* 6px */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 1rem; /* 16px */
+  --radius-2xl: 1.5rem; /* 24px */
+
+  /* Shadows - Professional Depth */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-kq: 0 4px 12px rgb(227 6 19 / 0.15); /* KQ Red shadow */
+
+  /* Transitions - Smooth & Professional */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+
+  /* Z-Index Scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+}
+
+/* ===== TAILWIND THEME WITH KQ BRANDING ===== */
+@theme {
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-primary-light: var(--color-primary-light);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-dark: var(--color-secondary-dark);
+  --color-secondary-light: var(--color-secondary-light);
+  --color-accent: var(--color-accent);
+  --color-accent-dark: var(--color-accent-dark);
+  --color-accent-light: var(--color-accent-light);
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-muted: var(--color-background-muted);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-error: var(--color-error);
+  --color-info: var(--color-info);
+
+  --font-sans: var(--font-roboto-flex), 'Segoe UI', system-ui, sans-serif;
+  --font-heading: var(--font-interstate), 'Segoe UI', system-ui, sans-serif;
+  --font-brand: var(--font-lucida-sans), 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ===== BASE STYLES ONLY ===== */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ===== OPTIONAL UTILITY CLASSES ===== */
+/* Only use these if you want them - they won't conflict with Tailwind */
+.font-brand {
+  font-family: var(--font-lucida-sans), 'Segoe UI', system-ui, sans-serif;
+}
+
+.font-heading {
+  font-family: var(--font-interstate), 'Segoe UI', system-ui, sans-serif;
+}
+
+.font-body {
+  font-family: var(--font-roboto-flex), 'Segoe UI', system-ui, sans-serif;
+}
+
+.main-content {
+  min-height: calc(100vh - 200px);
+  padding-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    min-height: calc(100vh - 300px);
+    padding-bottom: 3rem;
+  }
+}
+
+/* ===== ACCESSIBILITY & SELECTION ===== */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+::selection {
+  background-color: rgb(227 6 19 / 0.2);
+  color: var(--color-foreground);
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
