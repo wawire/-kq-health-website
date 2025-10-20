@@ -44,7 +44,7 @@ const CTABanner: React.FC = () => {
 
           <p className="text-lg text-white/90 mb-12 max-w-2xl mx-auto font-body leading-relaxed">
             Contact our medical team today for professional healthcare services, travel clearances,
-            or emergency medical assistance. We're here to help 24/7.
+            or emergency medical assistance. We&apos;re here to help 24/7.
           </p>
 
           {/* CTA Buttons */}

@@ -1,10 +1,14 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { ArrowRight, Calendar, ChevronLeft, ChevronRight, Phone, Shield } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+
+// ============================================================================
+// TYPES & INTERFACES
+// ============================================================================
 
 interface HeroData {
   id: number;
@@ -34,10 +38,71 @@ interface ModernHeroProps {
   autoplayInterval?: number;
 }
 
-// Image loading state management
 interface ImageLoadingState {
   [key: number]: 'loading' | 'loaded' | 'error';
 }
+
+// ============================================================================
+// ANIMATION VARIANTS - Properly typed for Framer Motion
+// ============================================================================
+
+const containerVariants: Variants = {
+  hidden: {
+    opacity: 0,
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+      duration: 0.6,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 20,
+    filter: 'blur(10px)',
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: {
+      duration: 0.6,
+      ease: 'easeOut',
+    },
+  },
+};
+
+const backgroundImageVariants: Variants = {
+  initial: {
+    opacity: 0,
+    scale: 1.05,
+  },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.8,
+      ease: 'easeOut',
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    transition: {
+      duration: 0.5,
+      ease: 'easeIn',
+    },
+  },
+};
+
+// ============================================================================
+// DATA
+// ============================================================================
 
 const heroData: HeroData[] = [
   {
@@ -109,104 +174,22 @@ const heroData: HeroData[] = [
   },
 ];
 
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
 const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterval = 7000 }) => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isAutoplay, setIsAutoplay] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState<number>(0);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [progress, setProgress] = useState<number>(0);
   const [imageLoadingStates, setImageLoadingStates] = useState<ImageLoadingState>({});
-  const [allImagesLoaded, setAllImagesLoaded] = useState(false);
+  const [allImagesLoaded, setAllImagesLoaded] = useState<boolean>(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const progressRef = useRef<NodeJS.Timeout | null>(null);
   const videoRefs = useRef<{ [key: number]: HTMLVideoElement | null }>({});
 
-  /**
-   * Enhanced image loading handler with error recovery
-   */
-  const handleImageLoad = useCallback(
-    (heroId: number) => {
-      setImageLoadingStates((prev) => {
-        const newState = { ...prev, [heroId]: 'loaded' as const };
-
-        // Check if all images are now loaded
-        const allLoaded = heroData.every((hero) => newState[hero.id] === 'loaded');
-        if (allLoaded && !allImagesLoaded) {
-          setAllImagesLoaded(true);
-          // Start autoplay only after all images are loaded
-          setTimeout(() => {
-            if (isAutoplay && !isHovered) {
-              startAutoplay();
-            }
-          }, 500);
-        }
-
-        return newState;
-      });
-    },
-    [isAutoplay, isHovered, allImagesLoaded]
-  );
-
-  /**
-   * Handle image loading errors with fallback
-   */
-  const handleImageError = useCallback(
-    (heroId: number) => {
-      console.error(`Failed to load hero image for slide ${heroId}`);
-      setImageLoadingStates((prev) => ({ ...prev, [heroId]: 'error' as const }));
-
-      // Still mark as "loaded" to prevent blocking the carousel
-      setTimeout(() => {
-        handleImageLoad(heroId);
-      }, 100);
-    },
-    [handleImageLoad]
-  );
-
-  /**
-   * Preload all hero images on component mount
-   */
-  const preloadImages = useCallback(() => {
-    heroData.forEach((hero) => {
-      setImageLoadingStates((prev) => ({ ...prev, [hero.id]: 'loading' as const }));
-
-      // Create image element for preloading
-      const img = document.createElement('img');
-      img.onload = () => handleImageLoad(hero.id);
-      img.onerror = () => handleImageError(hero.id);
-      img.src = hero.image;
-    });
-  }, [handleImageLoad, handleImageError]);
-
-  // Progress tracking
-  const startProgress = useCallback(() => {
-    setProgress(0);
-    if (progressRef.current) clearInterval(progressRef.current);
-
-    if (isAutoplay && !isHovered && allImagesLoaded) {
-      const step = 100 / (autoplayInterval / 100);
-      progressRef.current = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) return 100;
-          return prev + step;
-        });
-      }, 100);
-    }
-  }, [isAutoplay, isHovered, autoplayInterval, allImagesLoaded]);
-
-  // Enhanced autoplay management
-  const startAutoplay = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-
-    if (isAutoplay && !isHovered && allImagesLoaded) {
-      startProgress();
-      intervalRef.current = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % heroData.length);
-      }, autoplayInterval);
-    }
-  }, [isAutoplay, isHovered, autoplayInterval, startProgress, allImagesLoaded]);
-
-  const stopAutoplay = useCallback(() => {
+  const stopAutoplay = useCallback((): void => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -217,58 +200,89 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
     }
   }, []);
 
-  // Enhanced navigation with loading checks
-  const goToSlide = useCallback(
-    (index: number) => {
-      const targetHero = heroData[index];
-      const isImageLoaded = imageLoadingStates[targetHero.id] === 'loaded';
+  const startProgress = useCallback((): void => {
+    setProgress(0);
+    if (progressRef.current) clearInterval(progressRef.current);
 
-      // Only navigate if the target image is loaded
-      if (isImageLoaded || imageLoadingStates[targetHero.id] === 'error') {
-        setCurrentSlide(index);
-        setProgress(0);
-        stopAutoplay();
-        setTimeout(() => startAutoplay(), 200);
-      } else {
-        // If image not loaded, try to load it first
-        console.log(`Image for slide ${index} not ready, attempting to load...`);
-      }
+    if (!isHovered && allImagesLoaded) {
+      const step = 100 / (autoplayInterval / 100);
+      progressRef.current = setInterval(() => {
+        setProgress((prev) => (prev >= 100 ? 100 : prev + step));
+      }, 100);
+    }
+  }, [isHovered, autoplayInterval, allImagesLoaded]);
+
+  const startAutoplay = useCallback((): void => {
+    startProgress();
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (!isHovered) {
+      intervalRef.current = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % heroData.length);
+      }, autoplayInterval);
+    }
+  }, [isHovered, autoplayInterval, startProgress]);
+
+  const handleImageLoad = useCallback(
+    (heroId: number): void => {
+      setImageLoadingStates((prev) => {
+        const newState = { ...prev, [heroId]: 'loaded' as const };
+        const allLoaded = heroData.every((hero) => newState[hero.id] === 'loaded');
+        if (allLoaded && !allImagesLoaded) {
+          setAllImagesLoaded(true);
+          setTimeout(() => {
+            if (!isHovered) {
+              startAutoplay();
+            }
+          }, 500);
+        }
+        return newState;
+      });
     },
-    [imageLoadingStates, startAutoplay, stopAutoplay]
+    [isHovered, allImagesLoaded, startAutoplay]
   );
 
-  const goToPrevious = useCallback(() => {
-    goToSlide((currentSlide - 1 + heroData.length) % heroData.length);
-  }, [currentSlide, goToSlide]);
+  const handleImageError = useCallback(
+    (heroId: number): void => {
+      console.error(`Failed to load hero image for slide ${heroId}`);
+      setImageLoadingStates((prev) => ({ ...prev, [heroId]: 'error' as const }));
+      setTimeout(() => {
+        handleImageLoad(heroId);
+      }, 100);
+    },
+    [handleImageLoad]
+  );
 
-  const goToNext = useCallback(() => {
-    goToSlide((currentSlide + 1) % heroData.length);
-  }, [currentSlide, goToSlide]);
-
-  // Event handlers
-  const handleMouseEnter = useCallback(() => {
-    setIsHovered(true);
-    stopAutoplay();
-  }, [stopAutoplay]);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsHovered(false);
-    if (allImagesLoaded) {
-      startAutoplay();
-    }
-  }, [startAutoplay, allImagesLoaded]);
-
-  /**
-   * Handle video loading and playback
-   */
-  const handleVideoLoad = useCallback((heroId: number, videoElement: HTMLVideoElement) => {
-    videoRefs.current[heroId] = videoElement;
-    videoElement.addEventListener('loadeddata', () => {
-      console.log(`Video loaded for hero ${heroId}`);
+  const preloadImages = useCallback((): void => {
+    heroData.forEach((hero) => {
+      setImageLoadingStates((prev) => ({ ...prev, [hero.id]: 'loading' as const }));
+      const img = document.createElement('img');
+      img.onload = () => handleImageLoad(hero.id);
+      img.onerror = () => handleImageError(hero.id);
+      img.src = hero.image;
     });
-  }, []);
+  }, [handleImageLoad, handleImageError]);
 
-  // Effects
+  const goToNext = useCallback((): void => {
+    setCurrentSlide((prev) => (prev + 1) % heroData.length);
+    stopAutoplay();
+    startProgress();
+  }, [stopAutoplay, startProgress]);
+
+  const goToPrevious = useCallback((): void => {
+    setCurrentSlide((prev) => (prev - 1 + heroData.length) % heroData.length);
+    stopAutoplay();
+    startProgress();
+  }, [stopAutoplay, startProgress]);
+
+  const goToSlide = useCallback(
+    (index: number): void => {
+      setCurrentSlide(index);
+      stopAutoplay();
+      startProgress();
+    },
+    [stopAutoplay, startProgress]
+  );
+
   useEffect(() => {
     preloadImages();
     return () => {
@@ -277,148 +291,83 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
   }, [preloadImages, stopAutoplay]);
 
   useEffect(() => {
-    if (allImagesLoaded) {
+    if (isHovered) {
+      stopAutoplay();
+    } else if (allImagesLoaded) {
       startAutoplay();
     }
-    return () => stopAutoplay();
-  }, [startAutoplay, stopAutoplay, allImagesLoaded]);
+  }, [isHovered, allImagesLoaded, startAutoplay, stopAutoplay]);
 
   useEffect(() => {
-    if (allImagesLoaded) {
-      startProgress();
-    }
-  }, [currentSlide, startProgress, allImagesLoaded]);
-
-  // Manage video playback based on current slide
-  useEffect(() => {
-    Object.entries(videoRefs.current).forEach(([heroIdStr, video]) => {
-      const heroId = parseInt(heroIdStr);
-      if (video) {
-        if (heroData[currentSlide].id === heroId) {
-          video.play().catch(console.error);
-        } else {
-          video.pause();
-        }
+    const currentHero = heroData[currentSlide];
+    if (currentHero.video) {
+      const videoRef = videoRefs.current[currentHero.id];
+      if (videoRef) {
+        videoRef.play().catch((err) => {
+          console.warn('Video autoplay failed:', err);
+        });
       }
-    });
+    }
   }, [currentSlide]);
 
   const currentHero = heroData[currentSlide];
   const isCurrentImageLoaded = imageLoadingStates[currentHero.id] === 'loaded';
 
-  // Animation variants with Kenya Airways timing
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        staggerChildren: 0.15,
-        ease: 'easeOut',
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30, filter: 'blur(3px)' },
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: 'blur(0px)',
-      transition: {
-        duration: 0.6,
-        ease: [0.25, 0.1, 0.25, 1],
-      },
-    },
-  };
-
   return (
     <section
-      className={`relative w-full h-[60vh] sm:h-[65vh] md:h-[70vh] lg:h-[75vh] min-h-[400px] sm:min-h-[500px] max-h-[650px] overflow-hidden ${className}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      role="banner"
-      aria-label="Kenya Airways Health Services - Professional Healthcare Excellence"
+      className={`relative w-full h-screen overflow-hidden bg-black ${className}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      role="region"
+      aria-label="Hero carousel"
     >
-      {/* Loading Overlay - Show while images are loading */}
       {!allImagesLoaded && (
-        <div className="absolute inset-0 z-30 bg-gray-900 flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div>
-            <p className="text-white/80 text-sm font-medium">Loading experience...</p>
-          </div>
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black animate-pulse z-0" />
       )}
 
-      {/* Background Images/Videos with KQ Brand Gradient */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 z-0">
         {heroData.map((hero, index) => (
-          <div
+          <motion.div
             key={hero.id}
-            className={`absolute inset-0 transition-all duration-1000 ease-out ${
-              index === currentSlide && isCurrentImageLoaded
-                ? 'opacity-100 scale-100'
-                : 'opacity-0 scale-[1.02]'
-            }`}
+            className="absolute inset-0"
+            initial="initial"
+            animate={index === currentSlide ? 'animate' : 'initial'}
+            exit="exit"
+            variants={backgroundImageVariants}
           >
-            {hero.video ? (
-              <>
-                {/* Video Element */}
-                <video
-                  ref={(el) => el && handleVideoLoad(hero.id, el)}
-                  src={hero.video}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="metadata"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  onLoadStart={() => console.log(`Video loading started for hero ${hero.id}`)}
-                  onLoadedData={() => console.log(`Video loaded for hero ${hero.id}`)}
-                />
-                {/* Fallback Image */}
-                <Image
-                  src={hero.image}
-                  alt={hero.imageAlt}
-                  fill
-                  priority={index <= 1} // Prioritize first two images
-                  className="absolute inset-0 object-cover transition-transform duration-1000 ease-out"
-                  sizes="100vw"
-                  quality={90}
-                  onLoad={() => handleImageLoad(hero.id)}
-                  onError={() => handleImageError(hero.id)}
-                  style={{
-                    opacity: imageLoadingStates[hero.id] === 'loaded' ? 1 : 0,
-                  }}
-                />
-              </>
+            {hero.video && index === currentSlide ? (
+              <video
+                ref={(el) => {
+                  videoRefs.current[hero.id] = el;
+                }}
+                className="w-full h-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                aria-label={`Video: ${hero.imageAlt}`}
+              >
+                <source src={hero.video} type="video/mp4" />
+              </video>
             ) : (
               <Image
                 src={hero.image}
                 alt={hero.imageAlt}
                 fill
-                priority={index <= 1} // Prioritize first two images
-                className="object-cover transition-transform duration-1000 ease-out"
                 sizes="100vw"
-                quality={90}
+                className="object-cover"
+                priority={index === 0}
                 onLoad={() => handleImageLoad(hero.id)}
                 onError={() => handleImageError(hero.id)}
-                style={{
-                  opacity: imageLoadingStates[hero.id] === 'loaded' ? 1 : 0,
-                }}
               />
             )}
-
-            {/* Kenya Airways Brand Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-gray-900)]/85 via-[var(--color-gray-900)]/60 to-[var(--color-gray-900)]/40 sm:from-[var(--color-gray-900)]/75 sm:via-[var(--color-gray-900)]/50 sm:to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-gray-900)]/70 via-transparent to-transparent sm:from-[var(--color-gray-900)]/50" />
-            {/* KQ Red accent gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/10 via-transparent to-transparent" />
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Main Content - Only show when current image is loaded */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent z-5" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-5" />
+
       {isCurrentImageLoaded && (
         <div className="relative z-10 h-full">
           <div className="container mx-auto h-full flex items-center justify-center sm:justify-start px-[var(--space-4)] sm:px-[var(--space-6)]">
@@ -430,7 +379,6 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
                 variants={containerVariants}
                 key={`hero-content-${currentSlide}`}
               >
-                {/* Trust Badge */}
                 {currentHero.trustElement && (
                   <motion.div
                     className="inline-flex items-center space-x-2 px-[var(--space-3)] py-[var(--space-2)] bg-white/10 backdrop-blur-sm border border-white/20 rounded-[var(--radius-2xl)] text-xs sm:text-sm"
@@ -440,11 +388,7 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
                     }}
                   >
                     <div className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 bg-[var(--color-primary)]/20 rounded-full">
-                      <span className="text-white text-xs">
-                        {React.cloneElement(currentHero.trustElement.icon as React.ReactElement, {
-                          className: 'w-3 h-3 sm:w-4 sm:h-4',
-                        })}
-                      </span>
+                      {currentHero.trustElement.icon}
                     </div>
                     <span className="font-medium text-white/95 tracking-wide font-heading">
                       {currentHero.trustElement.text}
@@ -452,7 +396,6 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
                   </motion.div>
                 )}
 
-                {/* Headline */}
                 <motion.h1
                   className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight font-brand"
                   variants={itemVariants}
@@ -460,7 +403,6 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
                   {currentHero.headline}
                 </motion.h1>
 
-                {/* Subheadline */}
                 <motion.div
                   className="max-w-full sm:max-w-xl md:max-w-2xl mx-auto sm:mx-0"
                   variants={itemVariants}
@@ -470,7 +412,6 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
                   </p>
                 </motion.div>
 
-                {/* CTA Buttons */}
                 <motion.div
                   className="flex flex-col sm:flex-row gap-[var(--space-3)] pt-[var(--space-2)] items-center sm:items-start"
                   variants={itemVariants}
@@ -484,11 +425,8 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
                   >
                     <span className="mr-2">{currentHero.primaryCta.text}</span>
                     <span className="transition-transform duration-[var(--transition-base)] group-hover:translate-x-1">
-                      {React.cloneElement(currentHero.primaryCta.icon as React.ReactElement, {
-                        className: 'w-4 h-4',
-                      })}
+                      {currentHero.primaryCta.icon}
                     </span>
-                    -+
                   </Link>
 
                   <Link
@@ -500,9 +438,7 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
                   >
                     <span className="mr-2">{currentHero.secondaryCta.text}</span>
                     <span className="transition-transform duration-[var(--transition-base)] group-hover:translate-x-1">
-                      {React.cloneElement(currentHero.secondaryCta.icon as React.ReactElement, {
-                        className: 'w-4 h-4',
-                      })}
+                      {currentHero.secondaryCta.icon}
                     </span>
                   </Link>
                 </motion.div>
@@ -512,7 +448,6 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
         </div>
       )}
 
-      {/* Navigation Controls - Only show when images are loaded */}
       {heroData.length > 1 && allImagesLoaded && (
         <div className="absolute inset-0 z-20 pointer-events-none">
           <div
@@ -545,7 +480,6 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
         </div>
       )}
 
-      {/* Slide Indicators - Enhanced with loading states */}
       {heroData.length > 1 && allImagesLoaded && (
         <div className="absolute bottom-[var(--space-4)] sm:bottom-[var(--space-6)] left-1/2 -translate-x-1/2 z-20">
           <div
@@ -581,7 +515,6 @@ const ModernHero: React.FC<ModernHeroProps> = ({ className = '', autoplayInterva
         </div>
       )}
 
-      {/* Scroll Indicator - KQ Brand */}
       {allImagesLoaded && (
         <div className="hidden md:block absolute bottom-[var(--space-4)] left-[var(--space-6)] z-20">
           <motion.div

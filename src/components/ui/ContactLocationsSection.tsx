@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { cubicBezier, motion, Variants } from 'framer-motion';
 import {
   AlertCircle,
   Calendar,
@@ -106,30 +106,31 @@ const contactMethods: ContactMethod[] = [
   },
 ];
 
+// ✅ Correctly typed variants using cubicBezier easing
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.6,
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: cubicBezier(0.25, 0.1, 0.25, 1),
+    },
+  },
+};
+
 const ContactLocationsSection: React.FC = () => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: [0.25, 0.1, 0.25, 1],
-      },
-    },
-  };
-
   return (
     <section className="py-16 sm:py-20 bg-[var(--color-background-muted)]">
       <div className="container mx-auto px-4 sm:px-6">
@@ -239,11 +240,8 @@ const ContactLocationsSection: React.FC = () => {
                 key={location.id}
                 variants={itemVariants}
                 className="bg-white rounded-xl overflow-hidden border border-[var(--color-gray-200)] hover:border-[var(--color-primary)]/30 transition-colors duration-200"
-                style={{
-                  boxShadow: 'var(--shadow-base)',
-                }}
+                style={{ boxShadow: 'var(--shadow-base)' }}
               >
-                {/* Location Image */}
                 <div className="relative h-48 overflow-hidden">
                   <Image
                     src={location.image}
@@ -251,7 +249,7 @@ const ContactLocationsSection: React.FC = () => {
                     fill
                     className="object-cover"
                     placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                    blurDataURL="data:image/jpeg;base64,..."
                   />
                   {location.emergency && (
                     <div className="absolute top-4 right-4">
@@ -262,7 +260,6 @@ const ContactLocationsSection: React.FC = () => {
                   )}
                 </div>
 
-                {/* Location Content */}
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>

@@ -27,7 +27,7 @@ const MedicalClinicsHero: React.FC = () => {
           {/* Badge */}
           <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl text-white text-sm font-medium mb-6 border border-white/30 font-heading">
             <Heart size={16} className="mr-2 text-green-300" />
-            Kenya's Premier Medical Facilities
+            Kenya&apos;s Premier Medical Facilities
           </div>
 
           {/* Main Heading */}

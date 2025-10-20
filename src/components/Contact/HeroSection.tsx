@@ -34,8 +34,8 @@ const HeroSection: React.FC = () => {
               Get in Touch with KQ Medical
             </h1>
             <p className="text-lg text-white/90 mb-8 font-body leading-relaxed">
-              We're here to help with your medical travel needs, health clearances, and emergency
-              services. Reach out to our professional medical team today.
+              We&apos;re here to help with your medical travel needs, health clearances, and
+              emergency services. Reach out to our professional medical team today.
             </p>
 
             {/* Quick Contact Options */}
