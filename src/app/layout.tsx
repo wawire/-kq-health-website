@@ -1,20 +1,13 @@
 import Footer from '@/components/layout/footer';
 import Header from '@/components/layout/header';
 import type { Metadata } from 'next';
-import { Roboto_Flex } from 'next/font/google';
 import localFont from 'next/font/local';
 import './globals.css';
-
-const robotoFlex = Roboto_Flex({
-  subsets: ['latin'],
-  variable: '--font-roboto-flex',
-  display: 'swap',
-});
 
 const lucidaSans = localFont({
   src: [
     {
-      path: './fonts/LucidaSans-Demibold.woff2',
+      path: './fonts/LucidaSans-DemiBold.woff2',
       weight: '600',
       style: 'normal',
     },
@@ -58,7 +51,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
       lang="en"
-      className={`${robotoFlex.variable} ${lucidaSans.variable} ${interstate.variable}`}
+      className={`${lucidaSans.variable} ${interstate.variable}`}
     >
       <body className="antialiased min-h-screen flex flex-col bg-background text-foreground">
         {/* Skip link for screen readers */}

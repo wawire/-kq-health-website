@@ -108,7 +108,7 @@
   --color-error: var(--color-error);
   --color-info: var(--color-info);
 
-  --font-sans: var(--font-roboto-flex), 'Segoe UI', system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   --font-heading: var(--font-interstate), 'Segoe UI', system-ui, sans-serif;
   --font-brand: var(--font-lucida-sans), 'Segoe UI', system-ui, sans-serif;
 }
@@ -145,7 +145,7 @@ body {
 }
 
 .font-body {
-  font-family: var(--font-roboto-flex), 'Segoe UI', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .main-content {
